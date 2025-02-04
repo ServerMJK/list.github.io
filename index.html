@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Ideas de Regalos</title>
+  <title>Lista de Regalos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -25,13 +25,7 @@
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       cursor: pointer;
-    }
-    .selected {
-      background-color: #d4edda;
     }
     .disabled {
       opacity: 0.5;
@@ -91,7 +85,6 @@
   </ul>
 
   <script>
-    // Seleccionar la lista
     const giftList = document.getElementById('gift-list');
 
     // Cargar el estado guardado desde localStorage
@@ -103,10 +96,7 @@
       if (savedState[itemText]) {
         item.setAttribute('data-selected', savedState[itemText].selected);
         if (savedState[itemText].selected >= parseInt(item.getAttribute('data-max'))) {
-          item.classList.add('disabled');
-        }
-        if (savedState[itemText].selected > 0) {
-          item.classList.add('selected');
+          item.remove(); // Eliminar el regalo si alcanzó el límite
         }
       }
     });
@@ -124,16 +114,15 @@
         if (currentSelections < maxSelections) {
           currentSelections++;
           item.setAttribute('data-selected', currentSelections);
-          item.classList.add('selected');
 
           // Guardar el estado en localStorage
           const itemText = item.textContent.trim();
           savedState[itemText] = { selected: currentSelections };
           localStorage.setItem('giftListState', JSON.stringify(savedState));
 
-          // Si se alcanza el límite, deshabilitar el elemento
+          // Si se alcanza el límite, eliminar el elemento de la lista
           if (currentSelections === maxSelections) {
-            item.classList.add('disabled');
+            item.remove();
           }
         }
       }
