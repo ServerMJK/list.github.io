@@ -50,7 +50,8 @@
     function loadGiftList() {
       google.script.run.withSuccessHandler(function(giftList) {
         const giftListContainer = document.getElementById('gift-list');
-        
+        giftListContainer.innerHTML = ''; // Limpiar la lista antes de agregar nuevos elementos
+
         giftList.forEach(function(gift) {
           // Crear un nuevo item de la lista
           const li = document.createElement('li');
@@ -74,66 +75,9 @@
       }).getGiftList();  // Llamada a la función Apps Script
     }
 
-    // Cargar los datos cuando la página se cargue
+    // Asegurarse de que la función se ejecute al cargar la página
     window.onload = loadGiftList;
 
-    <script>
-  // Función para cargar los datos de la lista de Google Sheets
-  function loadGiftList() {
-    google.script.run.withSuccessHandler(function(giftList) {
-      const giftListContainer = document.getElementById('gift-list');
-      giftListContainer.innerHTML = ''; // Limpiar la lista antes de agregar nuevos elementos
-
-      giftList.forEach(function(gift) {
-        // Crear un nuevo item de la lista
-        const li = document.createElement('li');
-        li.textContent = gift.name;
-        li.setAttribute('data-max', gift.maxSelections);
-        li.setAttribute('data-selected', gift.selected);
-
-        // Si ya se han hecho selecciones, marcar el item
-        if (gift.selected > 0) {
-          li.classList.add('selected');
-        }
-
-        // Si se alcanzó el máximo de selecciones, deshabilitar el item
-        if (gift.selected >= gift.maxSelections) {
-          li.classList.add('disabled');
-        }
-
-        // Agregar el item a la lista
-        giftListContainer.appendChild(li);
-      });
-    }).getGiftList();  // Llamada a la función Apps Script
-  }
-
-  // Asegurarse de que la función se ejecute al cargar la página
-  window.addEventListener('load', loadGiftList);
-
-  // Función para manejar la selección de regalos
-  document.getElementById('gift-list').addEventListener('click', function(event) {
-    const item = event.target;
-    if (item.tagName === 'LI') {
-      const maxSelections = parseInt(item.getAttribute('data-max'));
-      let currentSelections = parseInt(item.getAttribute('data-selected'));
-
-      if (currentSelections < maxSelections) {
-        // Aumentar la cantidad de selecciones
-        currentSelections++;
-        item.setAttribute('data-selected', currentSelections);
-        item.classList.add('selected');
-
-        // Si se alcanza el límite de selecciones, deshabilitar el regalo
-        if (currentSelections === maxSelections) {
-          item.classList.add('disabled');
-        }
-
-        // Llamar a Google Apps Script para actualizar la selección en Google Sheets
-        const giftName = item.textContent.trim();
-        google.script.run.updateGiftSelection(giftName, currentSelections);
-      }
-    }
-  });
     // Función para manejar la selección de regalos
     document.getElementById('gift-list').addEventListener('click', function(event) {
       const item = event.target;
@@ -142,12 +86,19 @@
         let currentSelections = parseInt(item.getAttribute('data-selected'));
 
         if (currentSelections < maxSelections) {
+          // Aumentar la cantidad de selecciones
           currentSelections++;
           item.setAttribute('data-selected', currentSelections);
           item.classList.add('selected');
+
+          // Si se alcanza el límite de selecciones, deshabilitar el regalo
           if (currentSelections === maxSelections) {
             item.classList.add('disabled');
           }
+
+          // Llamar a Google Apps Script para actualizar la selección en Google Sheets
+          const giftName = item.textContent.trim();
+          google.script.run.updateGiftSelection(giftName, currentSelections);
         }
       }
     });
