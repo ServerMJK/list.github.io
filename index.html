@@ -47,27 +47,21 @@
 
   <script>
     // Función para cargar los datos desde Google Sheets
-    function loadGiftList() {
-      google.script.run.withSuccessHandler(function(giftList) {
-        const giftListContainer = document.getElementById('gift-list');
-        giftList.forEach(function(gift) {
-          const li = document.createElement('li');
-          li.textContent = gift.name;
-          li.setAttribute('data-max', gift.maxSelections);
-          li.setAttribute('data-selected', gift.selected);
-
-          if (gift.selected > 0) {
-            li.classList.add('selected');
-          }
-
-          if (gift.selected >= gift.maxSelections) {
-            li.classList.add('disabled');
-          }
-
-          giftListContainer.appendChild(li);
-        });
-      }).getGiftList(); // Llama a la función en Google Apps Script
-    }
+    function getGiftList() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('listadinamica');
+  const data = sheet.getDataRange().getValues();  // Obtén los datos de la hoja
+  
+  // Mapear los datos para devolver un formato adecuado
+  const giftList = data.slice(1).map(row => {  // Excluye la primera fila de encabezado
+    return {
+      name: row[0],  // Nombre del regalo
+      maxSelections: row[1],  // Máximo de selecciones
+      selected: row[2]  // Número de selecciones hechas
+    };
+  });
+  
+  return giftList;
+}
 
     // Llamar a la función loadGiftList cuando la página cargue
     window.onload = loadGiftList;
