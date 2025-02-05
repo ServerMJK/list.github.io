@@ -42,40 +42,34 @@
 <body>
   <h1>Lista de Ideas de Regalos</h1>
   <ul id="gift-list">
-    <!-- Los elementos de la lista serán agregados dinámicamente desde Google Sheets -->
+    <!-- Lista de regalos cargada desde Google Sheets -->
   </ul>
 
   <script>
-    // Función para cargar los datos de la lista de Google Sheets
+    // Función para cargar los datos desde Google Sheets
     function loadGiftList() {
       google.script.run.withSuccessHandler(function(giftList) {
         const giftListContainer = document.getElementById('gift-list');
-        giftListContainer.innerHTML = ''; // Limpiar la lista antes de agregar nuevos elementos
-
         giftList.forEach(function(gift) {
-          // Crear un nuevo item de la lista
           const li = document.createElement('li');
           li.textContent = gift.name;
           li.setAttribute('data-max', gift.maxSelections);
           li.setAttribute('data-selected', gift.selected);
 
-          // Si ya se han hecho selecciones, marcar el item
           if (gift.selected > 0) {
             li.classList.add('selected');
           }
 
-          // Si se alcanzó el máximo de selecciones, deshabilitar el item
           if (gift.selected >= gift.maxSelections) {
             li.classList.add('disabled');
           }
 
-          // Agregar el item a la lista
           giftListContainer.appendChild(li);
         });
-      }).getGiftList();  // Llamada a la función Apps Script
+      }).getGiftList(); // Llama a la función en Google Apps Script
     }
 
-    // Asegurarse de que la función se ejecute al cargar la página
+    // Llamar a la función loadGiftList cuando la página cargue
     window.onload = loadGiftList;
 
     // Función para manejar la selección de regalos
@@ -90,12 +84,10 @@
           item.setAttribute('data-selected', currentSelections);
           item.classList.add('selected');
 
-          // Si se alcanza el límite de selecciones, deshabilitar el regalo
           if (currentSelections === maxSelections) {
             item.classList.add('disabled');
           }
 
-          // Llamar a Google Apps Script para actualizar la selección en Google Sheets
           const giftName = item.textContent.trim();
           google.script.run.updateGiftSelection(giftName, currentSelections);
         }
