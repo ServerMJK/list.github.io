@@ -35,98 +35,148 @@
 </head>
 <body>
   <h1>Lista de Ideas de Regalos</h1>
-  <ul id="gift-list">
-    <!-- Lista de regalos -->
-    <li data-max="1">Freidora de aire</li>
-    <li data-max="2">Juego de vajillas</li>
-    <li data-max="1">Licuadora</li>
-    <li data-max="1">Tostadora</li>
-    <li data-max="3">Juego de cubiertos</li>
-    <li data-max="2">Cuchillos</li>
-    <li data-max="3">Juego de sábanas</li>
-    <li data-max="2">Juego de colcha</li>
-    <li data-max="2">Juego de vasos</li>
-    <li data-max="2">Juego de copas</li>
-    <li data-max="2">Juego de tasas</li>
-    <li data-max="1">Greca</li>
-    <li data-max="3">Toalla corporal de baño</li>
-    <li data-max="2">Calderos</li>
-    <li data-max="2">Sartenes</li>
-    <li data-max="2">Ollas</li>
-    <li data-max="1">Olla de presión</li>
-    <li data-max="1">Microondas</li>
-    <li data-max="1">Plancha</li>
-    <li data-max="1">Tabla de planchar</li>
-    <li data-max="1">Envases contenedores herméticos</li>
-    <li data-max="2">Alfombras</li>
-    <li data-max="3">Cortinas</li>
-    <li data-max="1">Pilón</li>
-    <li data-max="1">Maja frito</li>
-    <li data-max="1">Exprimidor de limón</li>
-    <li data-max="1">Escoba</li>
-    <li data-max="1">Cubeta</li>
-    <li data-max="1">Suape</li>
-    <li data-max="1">Bowls</li>
-    <li data-max="2">Almohadas</li>
-    <li data-max="1">Lámpara</li>
-    <li data-max="1">Jamper</li>
-    <li data-max="1">Toallitas de cocina</li>
-    <li data-max="3">Jarra</li>
-    <li data-max="2">Cucharones</li>
-    <li data-max="1">Escurridor</li>
-    <li data-max="1">Estante de baño</li>
-    <li data-max="2">Sillas plásticas</li>
-    <li data-max="1">Organizador de platos</li>
-    <li data-max="2">Zacafones</li>
-    <li data-max="1">Espejo</li>
-    <li data-max="1">Abanico</li>
-    <li data-max="2">Botellones de agua</li>
-    <li data-max="1">Tanque de gas</li>
-  </ul>
+  <ul id="gift-list"></ul>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
+    const supabaseUrl = 'https://jnkqhahcxayepxsjhfiv.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impua3FoYWhjeGF5ZXB4c2poZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg3MTI5MzEsImV4cCI6MjA1NDI4ODkzMX0.DNf7foQlxWwVddcW9OOxw_cgyQery-Wd9wZYpWvKF84';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
     const giftList = document.getElementById('gift-list');
 
-    // Cargar el estado guardado desde localStorage
-    const savedState = JSON.parse(localStorage.getItem('giftListState')) || {};
+    // Datos iniciales de los regalos
+    const initialGifts = [
+      { name: "Freidora de aire", max_selections: 1 },
+      { name: "Juego de vajillas", max_selections: 2 },
+      { name: "Licuadora", max_selections: 1 },
+      { name: "Tostadora", max_selections: 1 },
+      { name: "Juego de cubiertos", max_selections: 3 },
+      { name: "Cuchillos", max_selections: 2 },
+      { name: "Juego de sábanas", max_selections: 3 },
+      { name: "Juego de colcha", max_selections: 2 },
+      { name: "Juego de vasos", max_selections: 2 },
+      { name: "Juego de copas", max_selections: 2 },
+      { name: "Juego de tasas", max_selections: 2 },
+      { name: "Greca", max_selections: 1 },
+      { name: "Toalla corporal de baño", max_selections: 3 },
+      { name: "Calderos", max_selections: 2 },
+      { name: "Sartenes", max_selections: 2 },
+      { name: "Ollas", max_selections: 2 },
+      { name: "Olla de presión", max_selections: 1 },
+      { name: "Microondas", max_selections: 1 },
+      { name: "Plancha", max_selections: 1 },
+      { name: "Tabla de planchar", max_selections: 1 },
+      { name: "Envases contenedores herméticos", max_selections: 1 },
+      { name: "Alfombras", max_selections: 2 },
+      { name: "Cortinas", max_selections: 3 },
+      { name: "Pilón", max_selections: 1 },
+      { name: "Maja frito", max_selections: 1 },
+      { name: "Exprimidor de limón", max_selections: 1 },
+      { name: "Escoba", max_selections: 1 },
+      { name: "Cubeta", max_selections: 1 },
+      { name: "Suape", max_selections: 1 },
+      { name: "Bowls", max_selections: 1 },
+      { name: "Almohadas", max_selections: 2 },
+      { name: "Lámpara", max_selections: 1 },
+      { name: "Jamper", max_selections: 1 },
+      { name: "Toallitas de cocina", max_selections: 1 },
+      { name: "Jarra", max_selections: 3 },
+      { name: "Cucharones", max_selections: 2 },
+      { name: "Escurridor", max_selections: 1 },
+      { name: "Estante de baño", max_selections: 1 },
+      { name: "Sillas plásticas", max_selections: 2 },
+      { name: "Organizador de platos", max_selections: 1 },
+      { name: "Zacafones", max_selections: 2 },
+      { name: "Espejo", max_selections: 1 },
+      { name: "Abanico", max_selections: 1 },
+      { name: "Botellones de agua", max_selections: 2 },
+      { name: "Tanque de gas", max_selections: 1 }
+    ];
 
-    // Aplicar el estado guardado a los elementos de la lista
-    giftList.querySelectorAll('li').forEach((item) => {
-      const itemText = item.textContent.trim();
-      if (savedState[itemText]) {
-        item.setAttribute('data-selected', savedState[itemText].selected);
-        if (savedState[itemText].selected >= parseInt(item.getAttribute('data-max'))) {
-          item.remove(); // Eliminar el regalo si alcanzó el límite
-        }
+    // Función para cargar los regalos desde Supabase
+    async function loadGifts() {
+      const { data: gifts, error } = await supabase
+        .from('gifts')
+        .select('*');
+
+      if (error) {
+        console.error('Error cargando regalos:', error);
+        return;
       }
-    });
 
-    // Función para manejar la selección de regalos
-    giftList.addEventListener('click', (event) => {
-      const item = event.target;
+      // Si la tabla está vacía, insertar los regalos iniciales
+      if (gifts.length === 0) {
+        const { error: insertError } = await supabase
+          .from('gifts')
+          .insert(initialGifts);
 
-      // Verificar si se hizo clic en un elemento de la lista
-      if (item.tagName === 'LI') {
-        const maxSelections = parseInt(item.getAttribute('data-max')) || 1;
-        let currentSelections = parseInt(item.getAttribute('data-selected')) || 0;
-
-        // Si aún no se ha alcanzado el límite de selecciones
-        if (currentSelections < maxSelections) {
-          currentSelections++;
-          item.setAttribute('data-selected', currentSelections);
-
-          // Guardar el estado en localStorage
-          const itemText = item.textContent.trim();
-          savedState[itemText] = { selected: currentSelections };
-          localStorage.setItem('giftListState', JSON.stringify(savedState));
-
-          // Si se alcanza el límite, eliminar el elemento de la lista
-          if (currentSelections === maxSelections) {
-            item.remove();
-          }
+        if (insertError) {
+          console.error('Error insertando regalos:', insertError);
+          return;
         }
+
+        // Recargar los regalos después de insertarlos
+        loadGifts();
+      } else {
+        renderGifts(gifts);
       }
-    });
+    }
+
+    // Función para renderizar los regalos
+    function renderGifts(gifts) {
+      giftList.innerHTML = '';
+      gifts.forEach((gift) => {
+        if (gift.selected < gift.max_selections) {
+          const li = document.createElement('li');
+          li.textContent = `${gift.name} (${gift.selected}/${gift.max_selections})`;
+          li.addEventListener('click', () => selectGift(gift.id));
+          giftList.appendChild(li);
+        }
+      });
+    }
+
+    // Función para seleccionar un regalo
+    async function selectGift(id) {
+      const { data: gift, error } = await supabase
+        .from('gifts')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error seleccionando regalo:', error);
+        return;
+      }
+
+      if (gift.selected < gift.max_selections) {
+        const { error: updateError } = await supabase
+          .from('gifts')
+          .update({ selected: gift.selected + 1 })
+          .eq('id', id);
+
+        if (updateError) {
+          console.error('Error actualizando regalo:', updateError);
+          return;
+        }
+
+        // Recargar la lista después de seleccionar
+        loadGifts();
+      }
+    }
+
+    // Escuchar cambios en la base de datos
+    supabase
+      .channel('gifts')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'gifts' }, () => {
+        loadGifts();
+      })
+      .subscribe();
+
+    // Cargar los regalos al iniciar
+    loadGifts();
   </script>
 </body>
 </html>
