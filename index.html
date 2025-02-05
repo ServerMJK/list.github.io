@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Regalos</title>
+  <title>Lista de Ideas de Regalos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -25,7 +25,13 @@
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       cursor: pointer;
+    }
+    .selected {
+      background-color: #d4edda;
     }
     .disabled {
       opacity: 0.5;
@@ -35,54 +41,108 @@
 </head>
 <body>
   <h1>Lista de Ideas de Regalos</h1>
-  <ul id="gift-list"></ul>
+  <ul id="gift-list">
+    <li data-max="1">Freidora de aire</li>
+    <li data-max="2">Juego de vajillas</li>
+    <li data-max="1">Licuadora</li>
+    <li data-max="1">Tostadora</li>
+    <li data-max="3">Juego de cubiertos</li>
+    <li data-max="2">Cuchillos</li>
+    <li data-max="3">Juego de sábanas</li>
+    <li data-max="2">Juego de colcha</li>
+    <li data-max="2">Juego de vasos</li>
+    <li data-max="2">Juego de copas</li>
+    <li data-max="2">Juego de tasas</li>
+    <li data-max="1">Greca</li>
+    <li data-max="3">Toalla corporal de baño</li>
+    <li data-max="2">Calderos</li>
+    <li data-max="2">Sartenes</li>
+    <li data-max="2">Ollas</li>
+    <li data-max="1">Olla de presión</li>
+    <li data-max="1">Microondas</li>
+    <li data-max="1">Plancha</li>
+    <li data-max="1">Tabla de planchar</li>
+    <li data-max="1">Envases contenedores herméticos</li>
+    <li data-max="2">Alfombras</li>
+    <li data-max="3">Cortinas</li>
+    <li data-max="1">Pilón</li>
+    <li data-max="1">Maja frito</li>
+    <li data-max="1">Exprimidor de limón</li>
+    <li data-max="1">Escoba</li>
+    <li data-max="1">Cubeta</li>
+    <li data-max="1">Suape</li>
+    <li data-max="1">Bowls</li>
+    <li data-max="2">Almohadas</li>
+    <li data-max="1">Lámpara</li>
+    <li data-max="1">Jamper</li>
+    <li data-max="1">Toallitas de cocina</li>
+    <li data-max="3">Jarra</li>
+    <li data-max="2">Cucharones</li>
+    <li data-max="1">Escurridor</li>
+    <li data-max="1">Estante de baño</li>
+    <li data-max="2">Sillas plásticas</li>
+    <li data-max="1">Organizador de platos</li>
+    <li data-max="2">Zacafones</li>
+    <li data-max="1">Espejo</li>
+    <li data-max="1">Abanico</li>
+    <li data-max="2">Botellones de agua</li>
+    <li data-max="1">Tanque de gas</li>
+  </ul>
 
   <script>
-    // URL de tu Google Apps Script Web App (reemplaza con la URL de tu Web App)
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxp_BUd86f-41i1nUSrwzb3hXw52jkcMe4cTtz68VtQtkZVKxxHi_Ju1iVkvro4_lhI/exec';
-    const giftList = document.getElementById('gift-list');
+    document.addEventListener('DOMContentLoaded', function () {
+      // Inicializar la lista con los valores de las selecciones de la hoja
+      initializeGiftList();
+    });
 
-    // Función para cargar los regalos automáticamente desde Google Sheets
-    async function loadGifts() {
-      const response = await fetch(webAppUrl);
-      const gifts = await response.json();
-      renderGifts(gifts);
-    }
+    // Inicializa la lista de regalos con las selecciones desde Google Sheets
+    function initializeGiftList() {
+      const giftItems = document.querySelectorAll('#gift-list li');
 
-    // Función para renderizar los regalos
-    function renderGifts(gifts) {
-      giftList.innerHTML = '';
-      gifts.forEach((gift, index) => {
-        const li = document.createElement('li');
-        li.textContent = `${gift[0]} (${gift[2]}/${gift[1]})`; // Nombre, Seleccionado, Máx.
-        li.addEventListener('click', () => selectGift(index));
-        if (gift[2] >= gift[1]) {
-          li.classList.add('disabled'); // Deshabilitar si se alcanza el límite
-        }
-        giftList.appendChild(li);
+      giftItems.forEach(function (item) {
+        const giftName = item.textContent.trim();
+        const maxSelections = parseInt(item.getAttribute('data-max'));
+        
+        // Obtener el valor de las selecciones desde Google Sheets
+        google.script.run.withSuccessHandler(function(selected) {
+          const currentSelections = selected || 0;
+          item.setAttribute('data-selected', currentSelections);
+
+          if (currentSelections > 0) {
+            item.classList.add('selected');
+          }
+          if (currentSelections >= maxSelections) {
+            item.classList.add('disabled');
+          }
+        }).getGiftSelections(giftName);
       });
     }
 
-    // Función para seleccionar un regalo
-    async function selectGift(index) {
-      const response = await fetch(webAppUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ giftIndex: index }),
-      });
+    // Manejar la selección de un regalo
+    function updateSelection(giftName, listItem) {
+      const maxSelections = parseInt(listItem.getAttribute('data-max'));
+      let currentSelections = parseInt(listItem.getAttribute('data-selected')) || 0;
 
-      const result = await response.json();
-      if (result.success) {
-        loadGifts(); // Recargar los datos después de la selección
-      } else {
-        alert('Ya no puedes seleccionar más de este regalo');
+      if (currentSelections < maxSelections) {
+        currentSelections++;
+        listItem.setAttribute('data-selected', currentSelections);
+        listItem.classList.add('selected');
+        
+        // Llamar a Google Apps Script para actualizar la hoja de cálculo
+        google.script.run.updateGiftSelection(giftName, currentSelections);
       }
     }
 
-    // Cargar los regalos automáticamente al iniciar
-    loadGifts();
+    // Actualizar la selección al hacer clic en un regalo
+    const giftList = document.getElementById('gift-list');
+    giftList.addEventListener('click', function(event) {
+      const item = event.target;
+      
+      if (item.tagName === 'LI') {
+        const giftName = item.textContent.trim();
+        updateSelection(giftName, item);
+      }
+    });
   </script>
 </body>
 </html>
