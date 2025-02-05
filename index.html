@@ -42,82 +42,62 @@
 <body>
   <h1>Lista de Ideas de Regalos</h1>
   <ul id="gift-list">
-    <!-- Los elementos de la lista se agregarán dinámicamente desde Google Sheets -->
+    <!-- Lista de regalos -->
   </ul>
 
   <script>
-    // Función para cargar la lista de regalos desde Google Sheets
+    // Función para cargar los datos de la lista de regalos desde Google Sheets
     function loadGiftList() {
       google.script.run.withSuccessHandler(function(giftList) {
-        // Verifica que los datos hayan sido recibidos correctamente
-        console.log("Lista de regalos recibida: ", giftList);
-
         const giftListContainer = document.getElementById('gift-list');
         
-        // Limpiar la lista antes de agregar nuevos elementos
-        giftListContainer.innerHTML = '';
-
-        // Crear los elementos de la lista basados en los datos recibidos
         giftList.forEach(function(gift) {
           const li = document.createElement('li');
           li.textContent = gift.name;
           li.setAttribute('data-max', gift.maxSelections);
           li.setAttribute('data-selected', gift.selected);
-
-          // Si el regalo ya ha sido seleccionado, añadir clase 'selected'
+  
           if (gift.selected > 0) {
             li.classList.add('selected');
           }
-
-          // Si se ha alcanzado el límite de selecciones, añadir clase 'disabled'
+  
           if (gift.selected >= gift.maxSelections) {
             li.classList.add('disabled');
           }
-
-          // Agregar el item a la lista
+  
           giftListContainer.appendChild(li);
         });
-      }).withFailureHandler(function(error) {
-        console.error('Error al obtener la lista de regalos:', error);
       }).getGiftList();  // Llama a la función en Google Apps Script
     }
 
-    // Cargar la lista de regalos cuando la página se haya cargado
-    window.onload = function() {
-      console.log("Página cargada, cargando lista de regalos...");
-      loadGiftList();
-    };
+    // Cargar los datos cuando la página se cargue
+    window.onload = loadGiftList;
 
     // Función para manejar la selección de regalos
     document.getElementById('gift-list').addEventListener('click', function(event) {
       const item = event.target;
-
-      // Verificar si se hizo clic en un elemento de la lista
       if (item.tagName === 'LI') {
-        const maxSelections = parseInt(item.getAttribute('data-max')) || 1;
-        let currentSelections = parseInt(item.getAttribute('data-selected')) || 0;
+        const maxSelections = parseInt(item.getAttribute('data-max'));
+        let currentSelections = parseInt(item.getAttribute('data-selected'));
 
-        // Si aún no se ha alcanzado el límite de selecciones
         if (currentSelections < maxSelections) {
           currentSelections++;
           item.setAttribute('data-selected', currentSelections);
           item.classList.add('selected');
 
-          // Guardar el estado en localStorage
-          const itemText = item.textContent.trim();
-          savedState[itemText] = { selected: currentSelections };
-          localStorage.setItem('giftListState', JSON.stringify(savedState));
-
-          // Si se alcanza el límite, deshabilitar el elemento
           if (currentSelections === maxSelections) {
             item.classList.add('disabled');
           }
 
-          // Llamar a Google Apps Script para actualizar la selección en Google Sheets
           const giftName = item.textContent.trim();
-          google.script.run.updateGiftSelection(giftName, currentSelections);
+          google.script.run.updateGiftSelection(giftName, currentSelections);  // Actualizar el valor en Google Sheets
         }
       }
+    });
+  </script>
+</body>
+</html>
+
     });
   </script>
 </body>
